@@ -4,6 +4,24 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SafariRunTest {
+    @Test void hideyhoFindingLootShareRecordsCatchAndOnlyHidesWithOneMode() {
+        // Observed Prism chat format; teammate name anonymized.
+        String message="§e§lLOOT SHARE! §7You received 2x §9Hideyho Shard§7 from §aTeammate§7 finding the §9Hideyho§7!";
+        assertEquals(new SafariRun.Catch(SafariSpecies.HIDEYHO,true),SafariRun.parse(message));
+        assertEquals(new SafariRun.Catch(SafariSpecies.HIDEYHO,true),SafariRun.parse(message+" (2)"));
+        assertNull(SafariRun.parse("LOOT SHARE! You received 2x Gimmiegold Shard from Teammate finding the Hideyho!"));
+        assertNull(SafariRun.parse("[VIP] Teammate: "+message));
+        var run=new SafariRun(); Object world=new Object(); run.sync(world,true,false);
+        run.receive(message);
+        assertTrue(run.caught(SafariSpecies.HIDEYHO));
+        assertTrue(run.shared(SafariSpecies.HIDEYHO));
+        assertTrue(run.enabled(SafariSpecies.HIDEYHO));
+        run.sync(world,true,true);
+        assertFalse(run.enabled(SafariSpecies.HIDEYHO));
+        assertFalse(BiomePanels.rows(SafariSpecies.Biome.HAUNTED,run,false).contains(SafariSpecies.HIDEYHO));
+        assertTrue(BiomePanels.rows(SafariSpecies.Biome.HAUNTED,run,true).contains(SafariSpecies.HIDEYHO));
+        assertTrue(run.enabled(SafariSpecies.GAZER));
+    }
     @Test void capturesAndLootShareResolveTheCritterAndRequireMatchingShard() {
         assertEquals(new SafariRun.Catch(SafariSpecies.FOXTROT,false),SafariRun.parse("§a§lCAPTURE! §7You caught a §fFoxtrot§7 and gained a §fFoxtrot Shard§7!"));
         assertEquals(new SafariRun.Catch(SafariSpecies.SOLSNATCHER,false),SafariRun.parse("CAPTURE! You caught a Solsnatcher and gained 2x Solsnatcher Shard! (2)"));

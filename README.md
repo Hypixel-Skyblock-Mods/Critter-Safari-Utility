@@ -15,7 +15,7 @@ for compatibility, so replacing the old JAR preserves settings and keybinds.
 1. Use Fabric Loader **0.19.3 or newer**, Java **25**, Fabric API for your
    Minecraft version, and **Fabric Language Kotlin 1.13.12+kotlin.2.4.0 or newer**.
    MoulConfig 4.7.2 is bundled with each JAR.
-2. Put the matching `CritterSafariUtility-1.0.6+mc<version>.jar` in the instance's
+2. Put the matching `CritterSafariUtility-1.0.7+mc<version>.jar` in the instance's
    `mods` folder. Install **one** version of this mod per instance.
 3. Enter the Critter Safari. The default area gate requires a Hypixel server
    address and the tab list's `Area: Safari` entry.
@@ -242,8 +242,8 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot'
 Both targets are built from `gradle/targets.properties`. Production JARs:
 
 ```text
-versions/mc26_1_2/build/libs/CritterSafariUtility-1.0.6+mc26.1.2.jar
-versions/mc26_2/build/libs/CritterSafariUtility-1.0.6+mc26.2.jar
+versions/mc26_1_2/build/libs/CritterSafariUtility-1.0.7+mc26.1.2.jar
+versions/mc26_2/build/libs/CritterSafariUtility-1.0.7+mc26.2.jar
 ```
 
 Source JARs are also generated. Shared behavior lives under `src/main/java`;

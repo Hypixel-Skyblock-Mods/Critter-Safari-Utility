@@ -9,7 +9,7 @@ public final class SafariRun {
     public record Catch(SafariSpecies species,boolean shared) {}
     private static final Pattern PERSONAL=Pattern.compile("^CAPTURE! You caught an? (.+?) and gained (?:an?|\\d+x?) (.+?) Shards?!$");
     private static final Pattern FOUND=Pattern.compile("^CAPTURE! You found (?:the )?(.+?),? and as a reward (?:he|she|they|it) gave you (?:an?|\\d+x?) (.+?) Shards?!$");
-    private static final Pattern SHARED=Pattern.compile("^LOOT SHARE!? You received (?:an?|\\d+x?) (.+?) Shards? from \\S+ catching an? (.+?)!$");
+    private static final Pattern SHARED=Pattern.compile("^LOOT SHARE!? You received (?:an?|\\d+x?) (.+?) Shards? from \\S+ (?:catching an?|finding the) (.+?)!$");
     private final EnumSet<SafariSpecies> caught=EnumSet.noneOf(SafariSpecies.class);
     private final EnumSet<SafariSpecies> shared=EnumSet.noneOf(SafariSpecies.class);
     private final EnumMap<SafariSpecies,Boolean> overrides=new EnumMap<>(SafariSpecies.class);

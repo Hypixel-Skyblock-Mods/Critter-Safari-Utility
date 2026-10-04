@@ -218,8 +218,14 @@ unverified wall, feeder, gem podium or ritual object signatures are fabricated.
 Personal captures and Safari loot-share formats are corroborated by the examples
 in [SkyHanni's AttributeShardsData](https://github.com/hannibal002/SkyHanni/blob/beta/src/main/java/at/hannibal2/skyhanni/features/inventory/attribute/AttributeShardsData.kt),
 including multi-shard catches, Hideyho's found/reward variant and loot shares
-from another player catching a named Safari critter. The user's local logs also
-confirm the personal capture format and their own Safari entry announcement.
+from another player catching a named Safari critter. SkyHanni accepts a general
+`from ...` ending for loot shares and publishes a shard-gain event; its
+[Safari checklist](https://github.com/hannibal002/SkyHanni/blob/beta/src/main/java/at/hannibal2/skyhanni/features/hunting/safari/SafariShardChecklist.kt)
+consumes those hunt/capture events. The user's Prism chat log additionally
+confirms Hideyho's teammate variant: `LOOT SHARE! You received 2x Hideyho Shard
+from <teammate> finding the Hideyho!`. CSU accepts that finding variant alongside
+ordinary catching messages. The logged personal capture and own Safari entry
+formats are also supported.
 Our independent parser requires a known critter and matching shard name. String
 counts do not multiply catches; One Critter Mode records unique species.
 Fabric's system-message allow hook observes these messages before its default
