@@ -5,8 +5,10 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.AABB;
 import java.util.*;
@@ -124,6 +126,7 @@ public final class CritterTracker {
             if (DetectionRules.inRange(ModelBounds.distanceSquared(entity,mc.player), settings.radius)) nearby.add(entity);
         }
         Set<String> approvedTypes = new HashSet<>(settings.entityTypes);
+        Map<Integer,Entity> nameplateBodies=bindNameplates(nearby,settings);
         Map<Integer, Target> found = new LinkedHashMap<>();
         Set<Integer> nameplateHeads=new HashSet<>();
         for (Entity entity : nearby) {
@@ -154,9 +157,9 @@ public final class CritterTracker {
             if(name!=null && DetectionRules.matchingName(name,settings.excludedNames)!=null) continue;
             boolean nameMatch = name != null && !settings.detection.equals("TYPE");
             if (typeMatch || nameMatch) {
-                if (entity instanceof ArmorStand || entity instanceof Display.TextDisplay) {
+                if ((entity instanceof ArmorStand && !headModel(entity)) || entity instanceof Display.TextDisplay) {
                     if (!nameMatch) continue;
-                    Entity body = nearestBody(entity, nearby, settings);
+                    Entity body = nameplateBodies.get(entity.getId());
                     if (body != null) {
                         found.put(body.getId(), new Target(body, typeId(body), name));
                         nameplateHeads.add(body.getId());
@@ -216,28 +219,39 @@ public final class CritterTracker {
         targets = Map.copyOf(merged);
     }
 
-    private Entity nearestBody(Entity label, List<Entity> nearby, Settings settings) {
-        Entity nearest = null;
-        double best = Double.MAX_VALUE;
+    private Map<Integer,Entity> bindNameplates(List<Entity> nearby,Settings settings) {
+        var plates=new ArrayList<NameplateBinding.Plate>();
+        var models=new ArrayList<NameplateBinding.Model>();
+        var entities=new HashMap<Integer,Entity>();
         for (Entity candidate : nearby) {
-            if (candidate == label || candidate instanceof ArmorStand || candidate instanceof Display.TextDisplay) continue;
             String candidateLabel=label(candidate);
             if (!DetectionRules.critterLabel(candidateLabel)) continue;
-            // A critter-named trade label must never attach to the merchant standing below it.
-            if (candidate instanceof Player && DetectionRules.matchingName(candidateLabel,settings.names)==null) {
-                var plateSpecies=SafariSpecies.named(DetectionRules.matchingName(label(label),settings.names)==null?"":DetectionRules.matchingName(label(label),settings.names));
-                if((plateSpecies!=SafariSpecies.SCRAPPY && plateSpecies!=SafariSpecies.HIDEYHO)
-                    || candidate.getCustomName()!=null) continue;
+            if (DetectionRules.matchingName(candidateLabel, settings.excludedNames) != null) continue;
+            String candidateName=DetectionRules.matchingName(candidateLabel,settings.names);
+            boolean head=headModel(candidate);
+            if((candidate instanceof ArmorStand && !head) || candidate instanceof Display.TextDisplay) {
+                if(candidateName!=null) plates.add(new NameplateBinding.Plate(candidate.getId(),candidateName,nameplatePoint(candidate)));
+                continue;
             }
-            if (DetectionRules.matchingName(label(candidate), settings.excludedNames) != null) continue;
-            double dx = candidate.getX() - label.getX(), dz = candidate.getZ() - label.getZ();
-            double dy = label.getY() - candidate.getY();
-            // Bind a floating nameplate to the closest entity below it, not to a distant neighbour.
-            if (dx * dx + dz * dz > 4 || dy < -0.5 || dy > candidate.getBbHeight() + 3) continue;
-            double score = dx * dx + dz * dz + Math.pow(dy - candidate.getBbHeight(), 2) * 0.25;
-            if (score < best) { best = score; nearest = candidate; }
+            if(candidateName==null) candidateName=speciesNames.get(candidate);
+            // A critter-named trade label must never attach to the merchant standing below it.
+            boolean anonymousNpc=candidate instanceof Player && candidateName==null;
+            if(anonymousNpc && candidate.getCustomName()!=null) continue;
+            models.add(new NameplateBinding.Model(candidate.getId(),candidateName,ModelBounds.of(candidate,1),head,anonymousNpc));
+            entities.put(candidate.getId(),candidate);
         }
-        return nearest;
+        var result=new HashMap<Integer,Entity>();
+        NameplateBinding.bind(plates,models).forEach((plate,model) -> result.put(plate,entities.get(model)));
+        return result;
+    }
+
+    private static Vec3 nameplatePoint(Entity entity) {
+        return entity instanceof Display?ModelBounds.of(entity,1).getCenter():entity.position();
+    }
+    private static boolean headModel(Entity entity) {
+        if(entity instanceof ArmorStand stand) return !stand.getItemBySlot(EquipmentSlot.HEAD).isEmpty();
+        return entity instanceof Display.ItemDisplay display && display.itemRenderState()!=null
+            && display.itemRenderState().itemStack().is(Items.PLAYER_HEAD);
     }
 
     public static String typeId(Entity entity) { return BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()).toString(); }

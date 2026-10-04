@@ -82,6 +82,15 @@ implementation was imported; this mod retains its own lightly filled boxes.
 
 ## Names
 
+The user reported a named Gazer head receiving no marker. Floating nameplates
+now bind against the rendered model's transformed position instead of an item
+display's anchor. Head-equipped armor stands can be bodies, rather than always
+being discarded as nametag carriers. Names remain mandatory: no Gazer texture
+or unnamed head-to-species mapping is assumed. A known different name, a nearer
+competing nameplate, or equally plausible head models prevents a wrong binding.
+Local client fixtures cover delayed nametags, translated text/head displays,
+adjacent Gazer/Gimmiegold heads, head-equipped stands and caught filtering.
+
 [QCloudy-Addition HuntingTextParser.java](https://github.com/northwestcloudy/QCloudy-Addition/blob/dea4507f4ad792b750a605f21a5b072ba537a169/src/main/java/cloudy/autume/addition/hunting/HuntingTextParser.java)
 publishes 37 Safari critter names grouped by biome. Its own renderer uses
 critter names on real entities for highlights, excluding supporting armor

@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.bee.Bee;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
@@ -72,6 +73,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
                     throw new AssertionError("Out-of-range entity was selected");
             });
             verifyRadiusAndProps(context);
+            verifyNamedHeadModels(context);
             context.waitTicks(10);
             context.takeScreenshot("critter-tracer-fill");
             context.setScreen(() -> new ChatScreen("",false));
@@ -571,6 +573,75 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             for(int id:new int[]{-61001,-61002,-61003,-61004,-61005}) mc.level.removeEntity(id,Entity.RemovalReason.DISCARDED);
             CritterSafariClient.settings.detection="NAME"; CritterSafariClient.apply(CritterSafariClient.settings);
         });
+    }
+    private static void verifyNamedHeadModels(ClientGameTestContext context) {
+        context.runOnClient(mc -> {
+            CritterSafariClient.settings.detection="BOTH"; CritterSafariClient.settings.oneCritterMode=false;
+            CritterSafariClient.run.reset();
+            var p=mc.player.position();
+            for(int i=0;i<2;i++) {
+                var head=new Display.ItemDisplay(BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("item_display")),mc.level);
+                head.setId(-62001-i); head.setPos(p.x+6+i*4,p.y+.5,p.z+8);
+                head.getSlot(0).set(new ItemStack(Items.PLAYER_HEAD));
+                try {
+                    var transform=Display.class.getDeclaredMethod("setTransformation",Transformation.class); transform.setAccessible(true);
+                    transform.invoke(head,new Transformation(new Vector3f(4,0,0),new Quaternionf(),new Vector3f(1,1,1),new Quaternionf()));
+                } catch(ReflectiveOperationException e) { throw new AssertionError(e); }
+                mc.level.addEntity(head);
+            }
+            CritterSafariClient.tracker.refresh();
+        });
+        context.waitTicks(3);
+        context.runOnClient(mc -> {
+            if(selected(-62001) || selected(-62002)) throw new AssertionError("Anonymous heads were guessed to be Gazer before a nametag appeared");
+            var p=mc.player.position();
+            var plate=new Display.TextDisplay(BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("text_display")),mc.level);
+            plate.setId(-62003); plate.setPos(p.x+6,p.y+1.5,p.z+8);
+            try {
+                var text=Display.TextDisplay.class.getDeclaredMethod("setText",Component.class); text.setAccessible(true);
+                text.invoke(plate,Component.literal("§aGazer"));
+                var transform=Display.class.getDeclaredMethod("setTransformation",Transformation.class); transform.setAccessible(true);
+                transform.invoke(plate,new Transformation(new Vector3f(4,0,0),new Quaternionf(),new Vector3f(1,1,1),new Quaternionf()));
+            } catch(ReflectiveOperationException e) { throw new AssertionError(e); }
+            mc.level.addEntity(plate);
+            var standType=(EntityType<? extends ArmorStand>)BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.withDefaultNamespace("armor_stand"));
+            var otherPlate=new ArmorStand(standType,mc.level);
+            otherPlate.setId(-62004); otherPlate.setPos(p.x+14,p.y+1.5,p.z+8); otherPlate.setCustomName(Component.literal("Gimmiegold")); mc.level.addEntity(otherPlate);
+            var headStand=new ArmorStand(standType,mc.level);
+            headStand.setId(-62005); headStand.setPos(p.x-9,p.y,p.z+8); headStand.setInvisible(true);
+            headStand.setItemSlot(EquipmentSlot.HEAD,new ItemStack(Items.PLAYER_HEAD)); mc.level.addEntity(headStand);
+            var standPlate=new ArmorStand(standType,mc.level);
+            standPlate.setId(-62006); standPlate.setPos(p.x-9,p.y+2.5,p.z+8); standPlate.setCustomName(Component.literal("Gazer")); mc.level.addEntity(standPlate);
+            var namedStand=new ArmorStand(standType,mc.level);
+            namedStand.setId(-62007); namedStand.setPos(p.x-14,p.y,p.z+8); namedStand.setInvisible(true);
+            namedStand.setItemSlot(EquipmentSlot.HEAD,new ItemStack(Items.CREEPER_HEAD)); namedStand.setCustomName(Component.literal("Gazer")); mc.level.addEntity(namedStand);
+            CritterSafariClient.tracker.refresh();
+        });
+        context.waitTicks(3);
+        context.runOnClient(mc -> {
+            var targets=CritterSafariClient.tracker.targets();
+            for(int id:new int[]{-62001,-62005,-62007}) {
+                var target=targets.stream().filter(t -> t.entity().getId()==id).findFirst().orElseThrow(() -> new AssertionError("Named head model was missed: "+id));
+                if(target.species()!=SafariSpecies.GAZER) throw new AssertionError("Head model received the wrong critter name");
+            }
+            var neighbor=targets.stream().filter(t -> t.entity().getId()==-62002).findFirst().orElseThrow();
+            if(neighbor.species()!=SafariSpecies.GIMMIEGOLD) throw new AssertionError("Gazer nametag was attached to the neighbouring head");
+            if(selected(-62003) || selected(-62004) || selected(-62006)) throw new AssertionError("Floating labels received duplicate tracers");
+            if(targets.stream().filter(t -> t.species()==SafariSpecies.GAZER).count()!=3) throw new AssertionError("Named heads did not produce one marker each");
+            mc.player.setYRot(-45); mc.player.setXRot(0);
+        });
+        context.waitTicks(2);
+        context.takeScreenshot("named-gazer-heads");
+        context.runOnClient(mc -> {
+            CritterSafariClient.settings.oneCritterMode=true; CritterSafariClient.apply(CritterSafariClient.settings);
+            CritterSafariClient.receiveSafariMessage(mc,"CAPTURE! You caught a Gazer and gained a Gazer Shard!");
+            if(selected(-62001) || selected(-62005) || selected(-62007) || !selected(-62002)) throw new AssertionError("Caught filtering affected the wrong head");
+            CritterSafariClient.settings.oneCritterMode=false; CritterSafariClient.run.reset();
+            mc.player.setYRot(0);
+            for(int id:new int[]{-62001,-62002,-62003,-62004,-62005,-62006,-62007}) mc.level.removeEntity(id,Entity.RemovalReason.DISCARDED);
+            CritterSafariClient.apply(CritterSafariClient.settings);
+        });
+        context.waitTicks(2);
     }
     private static void verifyGroupedModelsAndCrowd(ClientGameTestContext context) {
         context.runOnClient(mc -> {

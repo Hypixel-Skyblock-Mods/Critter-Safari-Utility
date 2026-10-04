@@ -15,7 +15,7 @@ for compatibility, so replacing the old JAR preserves settings and keybinds.
 1. Use Fabric Loader **0.19.3 or newer**, Java **25**, Fabric API for your
    Minecraft version, and **Fabric Language Kotlin 1.13.12+kotlin.2.4.0 or newer**.
    MoulConfig 4.7.2 is bundled with each JAR.
-2. Put the matching `CritterSafariUtility-1.0.7+mc<version>.jar` in the instance's
+2. Put the matching `CritterSafariUtility-1.0.8+mc<version>.jar` in the instance's
    `mods` folder. Install **one** version of this mod per instance.
 3. Enter the Critter Safari. The default area gate requires a Hypixel server
    address and the tab list's `Area: Safari` entry.
@@ -152,8 +152,13 @@ on a world change; they are observational heuristics, not verified catalog
 assignments. Do not select Raw Types when avoiding ambient mobs is a priority.
 To hide a named species entirely, put its name in the exclusions list.
 
-Named armor stands/text displays are associated with the nearest body beneath
-them when one is available. Orphan nameplates get no marker; shard/trade/click
+Named armor stands/text displays are associated with the visible model beneath
+them, including transformed head displays and armor stands carrying head-slot
+equipment. A stand with its own critter name and head model is itself a target.
+Head models require a known name first; neighboring heads cannot inherit a
+different critter's name, and ambiguous pairs wait for a clear association.
+Each identified body receives one marker, with ordinary caught/manual filters.
+Orphan nameplates get no marker; shard/trade/click
 labels are ignored. Generic player NPCs still require a named body except for
 strict Scrappy/Hideyho nameplate matches on otherwise unnamed profiles. Hideyho's
 published skin also identifies it without a nameplate, including after a
@@ -242,8 +247,8 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-25.0.1.8-hotspot'
 Both targets are built from `gradle/targets.properties`. Production JARs:
 
 ```text
-versions/mc26_1_2/build/libs/CritterSafariUtility-1.0.7+mc26.1.2.jar
-versions/mc26_2/build/libs/CritterSafariUtility-1.0.7+mc26.2.jar
+versions/mc26_1_2/build/libs/CritterSafariUtility-1.0.8+mc26.1.2.jar
+versions/mc26_2/build/libs/CritterSafariUtility-1.0.8+mc26.2.jar
 ```
 
 Source JARs are also generated. Shared behavior lives under `src/main/java`;
