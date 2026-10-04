@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "crittersafariesp-test",
+  "version": "1.0.0",
+  "name": "Critter Safari Utility client tests",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": ["org.hypixelskyblockmods.crittersafariesp.CritterClientGameTest"]
+  }
+}

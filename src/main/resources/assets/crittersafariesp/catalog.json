@@ -1,0 +1,20 @@
+{
+  "entityTypes": [
+    "minecraft:armadillo", "minecraft:bat", "minecraft:bee", "minecraft:cave_spider",
+    "minecraft:creaking", "minecraft:dolphin", "minecraft:endermite", "minecraft:fox",
+    "minecraft:frog", "minecraft:glow_squid", "minecraft:goat", "minecraft:interaction",
+    "minecraft:item_display", "minecraft:panda", "minecraft:parrot", "minecraft:phantom",
+    "minecraft:player", "minecraft:polar_bear", "minecraft:ravager", "minecraft:shulker",
+    "minecraft:silverfish", "minecraft:slime", "minecraft:sniffer", "minecraft:snow_golem",
+    "minecraft:tropical_fish", "minecraft:warden"
+  ],
+  "names": [
+    "Areita", "Billygoat", "Bloodbat", "Bluebird", "Cavernfish", "Chuckwalla",
+    "Doomspiral", "Driftling", "Duplico", "Flitter", "Fluffling", "Foxtrot",
+    "Gazer", "Gemzie", "Gimmiegold", "Hideonfloor", "Hideonwall", "Hideyho",
+    "Honeybug", "Litterbug", "Macaw", "Mantis Shrimp", "Nozzlenose", "Parakeet",
+    "Polaris", "Rockmite", "Scrappy", "Shuddersquid", "Shyworm", "Snoozle",
+    "Solsnatcher", "Strongarm", "Tepid", "Treefrog", "Troodon", "Woodchucker", "Wumpa",
+    "Wriggleworm", "Yubat"
+  ]
+}

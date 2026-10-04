@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "crittersafariesp",
+  "version": "${version}",
+  "name": "Critter Safari Utility",
+  "description": "CSU: configurable Safari critter overlays, capture tracking, biome panels and capsule trajectory estimates.",
+  "contact": {
+    "homepage": "https://github.com/Hypixel-Skyblock-Mods/Critter-Safari-Utility",
+    "sources": "https://github.com/Hypixel-Skyblock-Mods/Critter-Safari-Utility",
+    "issues": "https://github.com/Hypixel-Skyblock-Mods/Critter-Safari-Utility/issues"
+  },
+  "environment": "client",
+  "license": "MIT",
+  "entrypoints": {"client": ["org.hypixelskyblockmods.crittersafariesp.CritterSafariClient"]},
+  "mixins": ["crittersafariesp.mixins.json"],
+  "depends": {"fabricloader": ">=0.19.3", "minecraft": "=${minecraft_version}", "java": ">=25", "fabric-api": "*", "fabric-language-kotlin": ">=1.13.12+kotlin.2.4.0"}
+}
