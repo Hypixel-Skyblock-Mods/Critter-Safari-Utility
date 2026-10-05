@@ -68,7 +68,7 @@ public final class BiomePanels {
         }
     }
     public static boolean click(MouseButtonEvent event,int width,int height,boolean preview) {
-        if(event.button()!=0 || (!preview && (!visible() || !interactive(ClientCompat.screen(Minecraft.getInstance()))))) return false;
+        if(event.button()!=com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT || (!preview && (!visible() || !interactive(ClientCompat.screen(Minecraft.getInstance()))))) return false;
         var settings=CritterSafariClient.settings; var biomes=SafariSpecies.Biome.values();
         for(int i=biomes.length-1;i>=0;i--) {
             var biome=biomes[i]; var box=rect(settings,biome,width,height);
@@ -90,7 +90,7 @@ public final class BiomePanels {
         return false;
     }
     public static boolean drag(MouseButtonEvent event,int width,int height) {
-        if(dragging==null || event.button()!=0) return false;
+        if(dragging==null || event.button()!=com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false;
         var settings=CritterSafariClient.settings; int index=dragging.ordinal(); var box=rect(settings,dragging,width,height);
         settings.biomeX[index]=HudPlacement.fraction(event.x()-grabX,width,box.width());
         settings.biomeY[index]=HudPlacement.fraction(event.y()-grabY,height,box.height());
@@ -106,7 +106,7 @@ public final class BiomePanels {
         return false;
     }
     public static boolean release(MouseButtonEvent event) {
-        if(dragging==null || event.button()!=0) return false;
+        if(dragging==null || event.button()!=com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return false;
         finishDrag(); return true;
     }
     public static void finishDrag() { if(dragging!=null) { dragging=null; CritterSafariClient.save(); } }

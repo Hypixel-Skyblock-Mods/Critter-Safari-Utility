@@ -19,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.Entity;
 import org.hypixelskyblockmods.crittersafariesp.platform.ClientCompat;
-import org.lwjgl.glfw.GLFW;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.IOException;
@@ -44,9 +44,9 @@ public final class CritterSafariClient implements ClientModInitializer {
         reload();
         var category = KeyMapping.Category.register(Identifier.fromNamespaceAndPath(MOD_ID, "main"));
         KeyMapping toggle = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.crittersafariesp.toggle",
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
+            ClientCompat.keyboardType(), InputConstants.UNKNOWN.getValue(), category));
         KeyMapping configure = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.crittersafariesp.settings",
-            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, category));
+            ClientCompat.keyboardType(), InputConstants.UNKNOWN.getValue(), category));
         toggleBinding = toggle; settingsBinding = configure;
         var capturePhase=Identifier.fromNamespaceAndPath(MOD_ID,"capture_observer");
         ClientReceiveMessageEvents.ALLOW_GAME.addPhaseOrdering(capturePhase,Event.DEFAULT_PHASE);
@@ -109,15 +109,15 @@ public final class CritterSafariClient implements ClientModInitializer {
         else if(CritterTracker.inArea(mc,settings)) run.receive(text);
     }
     public static void apply(Settings updated) { settings = updated; save(); syncRun(Minecraft.getInstance()); tracker.refresh(); }
-    public static int toggleKeyCode() { return InputConstants.getKey(toggleBinding.saveString()).getValue(); }
-    public static int settingsKeyCode() { return InputConstants.getKey(settingsBinding.saveString()).getValue(); }
+    public static int toggleKeyCode() { return ClientCompat.configCode(InputConstants.getKey(toggleBinding.saveString())); }
+    public static int settingsKeyCode() { return ClientCompat.configCode(InputConstants.getKey(settingsBinding.saveString())); }
     public static void setConfigKeys(int toggle, int settings) {
         boolean changed = updateKey(toggleBinding, toggle) | updateKey(settingsBinding, settings);
         if (changed) { KeyMapping.resetMapping(); Minecraft.getInstance().options.save(); }
     }
     private static boolean updateKey(KeyMapping binding, int code) {
         InputConstants.Key key = code == -1 ? InputConstants.UNKNOWN
-            : (code >= 0 && code <= 9 ? InputConstants.Type.MOUSE : InputConstants.Type.KEYSYM).getOrCreate(code);
+            : (code >= 0 && code <= 9 ? InputConstants.Type.MOUSE : ClientCompat.keyboardType()).getOrCreate(code);
         if (binding.saveString().equals(key.getName())) return false;
         binding.setKey(key); return true;
     }

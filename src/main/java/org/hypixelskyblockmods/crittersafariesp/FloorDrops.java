@@ -22,8 +22,8 @@ public final class FloorDrops {
         Minecraft mc=Minecraft.getInstance();
         if (world!=mc.level) { confirmed.clear(); world=mc.level; }
         if (world==null || !CritterSafariClient.settings.floorDrops || !CritterSafariClient.tracker.allowed()
-            || packet.getParticle().getType()!=ParticleTypes.HAPPY_VILLAGER) return;
-        BlockPos position=BlockPos.containing(packet.getX(),packet.getY()-1,packet.getZ());
+            || org.hypixelskyblockmods.crittersafariesp.platform.ClientCompat.particle(packet).getType()!=ParticleTypes.HAPPY_VILLAGER) return;
+        BlockPos position=BlockPos.containing(org.hypixelskyblockmods.crittersafariesp.platform.ClientCompat.particlePosition(packet).add(0,-1,0));
         var displays=world.getEntitiesOfClass(Display.ItemDisplay.class,new AABB(position).inflate(.01),
             display -> valid(display,position));
         if (displays.size()==3) confirmed.put(position,List.copyOf(displays));

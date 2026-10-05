@@ -1,6 +1,6 @@
 # Critter Safari Utility (CSU)
 
-Client-only Fabric mod for Minecraft **26.1.2** and **26.2**. Draws thin red/green
+Client-only Fabric mod for Minecraft **26.1.2**, **26.2** and **26.3**. Draws thin red/green
 tracers with a soft halo and lightly filled 3D bounding boxes.
 Uses **MoulConfig** for settings. Default radius: **100 blocks**, measured
 as a sphere around the player.
@@ -290,3 +290,5 @@ Client test screenshots cover tracer/halo/fill rendering, MoulConfig categories,
 HUD placement, and the empty scene without a HUD badge. Live Hypixel entity
 coverage still needs verification in an actual
 Safari instance.
+
+Minecraft 26.3 builds bundle the official MoulConfig source port; see [THIRD_PARTY.md](THIRD_PARTY.md) for the pinned revision and JDK 8/25 build setup.

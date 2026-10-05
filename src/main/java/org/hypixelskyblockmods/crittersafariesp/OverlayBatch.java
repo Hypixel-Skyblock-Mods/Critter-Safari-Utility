@@ -1,26 +1,21 @@
 package org.hypixelskyblockmods.crittersafariesp;
 
-import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
-import net.minecraft.client.gui.render.TextureSetup;
-import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.state.gui.GuiElementRenderState;
+
 import org.hypixelskyblockmods.crittersafariesp.mixin.GuiGraphicsAccessor;
 import org.joml.Matrix3x2f;
 import org.joml.Matrix3x2fc;
 import java.util.Arrays;
 
 /** A perspective-projected box face submitted to Minecraft's backend-neutral GUI pipeline. */
-public record OverlayQuad(Matrix3x2fc pose, float[] vertices, int[] colors,
-                          int vertexCount, ScreenRectangle scissorArea, ScreenRectangle bounds) implements GuiElementRenderState {
+public final class OverlayBatch {
+    private OverlayBatch() {}
     private static Batch batch;
     static int lastQuadCount, lastSubmissionCount;
-    @Override public RenderPipeline pipeline() { return RenderPipelines.GUI; }
-    @Override public TextureSetup textureSetup() { return TextureSetup.noTexture(); }
-    @Override public void buildVertices(VertexConsumer consumer) {
-        for (int i = 0; i < vertexCount; i++) consumer.addVertexWith2DPose(pose, vertices[i * 2], vertices[i * 2 + 1]).setColor(colors[i]);
+    public static void buildVertices(VertexConsumer consumer, Matrix3x2fc pose, float[] vertices, int[] colors, int count) {
+        for (int i=0; i<count; i++) consumer.addVertexWith2DPose(pose,vertices[i*2],vertices[i*2+1]).setColor(colors[i]);
     }
     public static void begin(GuiGraphicsExtractor graphics) {
         batch=new Batch(graphics); lastQuadCount=0; lastSubmissionCount=0;

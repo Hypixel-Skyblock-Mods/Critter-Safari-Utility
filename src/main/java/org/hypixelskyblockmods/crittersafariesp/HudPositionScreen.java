@@ -48,7 +48,7 @@ public final class HudPositionScreen extends Screen {
         if(BiomePanels.click(event,width,height,true)) return true;
         int x = HudPlacement.pixel(settings().hudX, width, StatusHud.displayWidth(preview(),settings()));
         int y = HudPlacement.pixel(settings().hudY, height, StatusHud.displayHeight(settings()));
-        if (event.button() == 0 && event.x() >= x && event.x() <= x + StatusHud.displayWidth(preview(),settings())
+        if (event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT && event.x() >= x && event.x() <= x + StatusHud.displayWidth(preview(),settings())
             && event.y() >= y && event.y() <= y + StatusHud.displayHeight(settings())) {
             grabX = event.x() - x; grabY = event.y() - y; dragging = true;
             return true;
@@ -57,14 +57,14 @@ public final class HudPositionScreen extends Screen {
     }
     @Override public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if(BiomePanels.drag(event,width,height)) return true;
-        if (!dragging || event.button() != 0) return super.mouseDragged(event, dx, dy);
+        if (!dragging || event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) return super.mouseDragged(event, dx, dy);
         settings().hudX = HudPlacement.fraction(event.x() - grabX, width, StatusHud.displayWidth(preview(),settings()));
         settings().hudY = HudPlacement.fraction(event.y() - grabY, height, StatusHud.displayHeight(settings()));
         return true;
     }
     @Override public boolean mouseReleased(MouseButtonEvent event) {
         if(BiomePanels.release(event)) return true;
-        if (dragging && event.button() == 0) { dragging = false; CritterSafariClient.save(); return true; }
+        if (dragging && event.button() == com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) { dragging = false; CritterSafariClient.save(); return true; }
         return super.mouseReleased(event);
     }
     @Override public boolean mouseScrolled(double mouseX,double mouseY,double scrollX,double scrollY) {

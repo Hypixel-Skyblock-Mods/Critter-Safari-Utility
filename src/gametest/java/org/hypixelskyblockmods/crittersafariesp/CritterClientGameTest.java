@@ -26,7 +26,7 @@ import com.mojang.authlib.GameProfile;
 import java.util.UUID;
 import io.github.notenoughupdates.moulconfig.gui.editors.GuiOptionEditorText;
 import io.github.notenoughupdates.moulconfig.gui.component.TextFieldComponent;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -49,7 +49,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
         Settings original = CritterSafariClient.settings;
         try (var singleplayer = context.worldBuilder().create()) {
             try {
-            singleplayer.getClientLevel().waitForChunksRender();
+            GameTestCompat.waitForChunks(singleplayer);
             context.runOnClient(mc -> {
                 var settings = new Settings(); settings.safariOnly = false;
                 CritterSafariClient.apply(settings);
@@ -177,7 +177,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             context.runOnClient(mc -> ((SettingsScreen)ClientCompat.screen(mc)).config.general.moveHud.run());
             context.runOnClient(mc -> {
                 var screen = (HudPositionScreen)ClientCompat.screen(mc);
-                var left = new MouseButtonInfo(0, 0);
+                var left = new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0);
                 if (!screen.mouseClicked(new MouseButtonEvent(10, 10, left), false))
                     throw new AssertionError("HUD badge could not be grabbed");
                 screen.mouseDragged(new MouseButtonEvent(110, 90, left), 100, 80);
@@ -222,6 +222,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             context.waitTicks(1);
             context.runOnClient(mc -> {
                 if (!CritterSafariClient.tracker.targets().isEmpty()) throw new AssertionError("Disabled ESP kept targets");
+                CritterSafariClient.LOGGER.info("CRITTER_FEATURE_FIXTURE_PASSED");
             });
             } catch(RuntimeException | AssertionError failure) {
                 context.runOnClient(mc -> { CritterSafariClient.LOGGER.error("Local ESP test failed",failure); ClientCompat.setScreen(mc,null); });
@@ -247,7 +248,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
         context.takeScreenshot("critter-one-mode-caught");
         context.runOnClient(mc -> {
             var screen=ClientCompat.screen(mc); var box=BiomePanels.rect(CritterSafariClient.settings,SafariSpecies.Biome.FOREST,screen.width,screen.height);
-            var left=new MouseButtonInfo(0,0);
+            var left=new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT,0);
             float scale=BiomePanels.scale(CritterSafariClient.settings,SafariSpecies.Biome.FOREST,screen.width,screen.height);
             int index=SafariSpecies.Biome.FOREST.species().indexOf(SafariSpecies.HONEYBUG);
             if(ScreenMouseEvents.allowMouseClick(screen).invoker().allowMouseClick(screen,
@@ -276,7 +277,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             for(var species:SafariSpecies.values()) if(!CritterSafariClient.run.enabled(species) || CritterSafariClient.run.caught(species))
                 throw new AssertionError("New Safari left a species disabled/caught");
             var screen=ClientCompat.screen(mc); var box=BiomePanels.rect(CritterSafariClient.settings,SafariSpecies.Biome.ICY,screen.width,screen.height);
-            var left=new MouseButtonInfo(0,0);
+            var left=new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT,0);
             ScreenMouseEvents.allowMouseClick(screen).invoker().allowMouseClick(screen,new MouseButtonEvent(box.x()+8,box.y()+5,left));
             ScreenMouseEvents.allowMouseDrag(screen).invoker().allowMouseDrag(screen,new MouseButtonEvent(box.x()-20,box.y()+30,left),-28,25);
             ScreenMouseEvents.allowMouseRelease(screen).invoker().allowMouseRelease(screen,new MouseButtonEvent(box.x()-20,box.y()+30,left));
@@ -291,7 +292,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             float scale=BiomePanels.scale(CritterSafariClient.settings,SafariSpecies.Biome.FOREST,screen.width,screen.height);
             int index=SafariSpecies.Biome.FOREST.species().indexOf(SafariSpecies.HONEYBUG);
             if(!BiomePanels.interactive(screen) || ScreenMouseEvents.allowMouseClick(screen).invoker().allowMouseClick(screen,
-                new MouseButtonEvent(box.x()+(10+(index%3)*BiomePanels.CELL)*scale,box.y()+(BiomePanels.HEADER+(index/3)*BiomePanels.ROW+4)*scale,new MouseButtonInfo(0,0)))
+                new MouseButtonEvent(box.x()+(10+(index%3)*BiomePanels.CELL)*scale,box.y()+(BiomePanels.HEADER+(index/3)*BiomePanels.ROW+4)*scale,new MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT,0)))
                 || selected(-10001)) throw new AssertionError("A non-chat cursor screen could not toggle a species");
         });
         context.takeScreenshot("critter-inventory-panel-toggle");
@@ -361,7 +362,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             input.getText().get();
             input.requestFocus();
         });
-        context.getInput().holdControl(); context.getInput().pressKey(GLFW.GLFW_KEY_A); context.getInput().releaseControl();
+        context.getInput().holdControl(); context.getInput().pressKey(InputConstants.KEY_A); context.getInput().releaseControl();
         context.getInput().typeChars("12");
         context.waitTicks(1);
         context.takeScreenshot("radius-exact-twelve");
@@ -376,9 +377,9 @@ public final class CritterClientGameTest implements FabricClientGameTest {
                 if (saved.radius != 12) throw new AssertionError("Native radius edit was not persisted to disk");
             } catch (java.io.IOException e) { throw new AssertionError("Could not reload saved radius", e); }
         });
-        context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+        context.getInput().pressKey(InputConstants.KEY_ESCAPE);
         if (context.computeOnClient(mc -> ClientCompat.screen(mc) instanceof SettingsScreen))
-            context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+            context.getInput().pressKey(InputConstants.KEY_ESCAPE);
         context.runOnClient(mc -> {
             if (ClientCompat.screen(mc) instanceof SettingsScreen) throw new AssertionError("Escape did not close radius settings");
             ClientCompat.setScreen(mc, null); // A subsequent Escape can open Minecraft's pause menu.
@@ -397,7 +398,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
             ((GuiOptionEditorText)option.getEditor()).getDelegate().foldRecursive((TextFieldComponent)null,
                 (component,found)->component instanceof TextFieldComponent field?field:found).requestFocus();
         });
-        context.getInput().holdControl(); context.getInput().pressKey(GLFW.GLFW_KEY_A); context.getInput().releaseControl();
+        context.getInput().holdControl(); context.getInput().pressKey(InputConstants.KEY_A); context.getInput().releaseControl();
         context.getInput().typeChars("100"); context.waitTicks(1);
         context.runOnClient(mc -> {
             if(CritterSafariClient.settings.radius!=100 || !selected(-20004) || !selected(-20005))
@@ -477,7 +478,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
         // The biome inference fixture uses actual Safari map coordinates in this local world.
         singleplayer.getServer().runCommand("tp @a 1 70 20");
         context.waitFor(mc -> mc.player.position().distanceToSqr(new Vec3(1,70,20))<4);
-        singleplayer.getClientLevel().waitForChunksRender();
+        GameTestCompat.waitForChunks(singleplayer);
         context.runOnClient(mc -> {
             CritterSafariClient.settings.detection="BOTH"; CritterSafariClient.settings.radius=100;
             CritterSafariClient.settings.oneCritterMode=false;
@@ -528,7 +529,7 @@ public final class CritterClientGameTest implements FabricClientGameTest {
     private static void verifySpecialNpcAndMounds(ClientGameTestContext context,net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext singleplayer) {
         singleplayer.getServer().runCommand("tp @a -80 70 31");
         context.waitFor(mc -> mc.player.position().distanceToSqr(new Vec3(-80,70,31))<4);
-        singleplayer.getClientLevel().waitForChunksRender();
+        GameTestCompat.waitForChunks(singleplayer);
         context.runOnClient(mc -> {
             CritterSafariClient.settings.detection="BOTH"; CritterSafariClient.settings.oneCritterMode=false;
             CritterSafariClient.run.reset();
@@ -684,10 +685,10 @@ public final class CritterClientGameTest implements FabricClientGameTest {
         });
         context.waitTicks(3);
         context.runOnClient(mc -> {
-            if(CritterSafariClient.tracker.targets().size()<80 || OverlayQuad.lastQuadCount<1000 || OverlayQuad.lastSubmissionCount!=1)
+            if(CritterSafariClient.tracker.targets().size()<80 || OverlayBatch.lastQuadCount<1000 || OverlayBatch.lastSubmissionCount!=1)
                 throw new AssertionError("Crowded overlay was not drawn as one smooth geometry batch");
             CritterSafariClient.LOGGER.info("Crowded local scene: {} targets, {} quads, {} geometry submission",
-                CritterSafariClient.tracker.targets().size(),OverlayQuad.lastQuadCount,OverlayQuad.lastSubmissionCount);
+                CritterSafariClient.tracker.targets().size(),OverlayBatch.lastQuadCount,OverlayBatch.lastSubmissionCount);
             var bee=mc.level.getEntity(-50001); bee.setPos(bee.position().add(.15,0,0));
         });
         context.waitTicks(1);

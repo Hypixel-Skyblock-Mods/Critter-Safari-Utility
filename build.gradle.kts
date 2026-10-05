@@ -6,6 +6,8 @@ plugins {
     id("net.fabricmc.fabric-loom") version "1.17.1" apply false
 }
 
+apply(from = rootProject.file("gradle/moulconfig263.gradle"))
+
 val catalog = Properties().apply { file("gradle/targets.properties").inputStream().use(::load) }
 val targets = catalog.getProperty("targets").split(',').map(String::trim)
 val modVersion = providers.gradleProperty("mod_version").get()
@@ -30,8 +32,8 @@ subprojects {
         add("implementation", "net.fabricmc:fabric-loader:0.19.3")
         add("implementation", "net.fabricmc.fabric-api:fabric-api:${catalog.getProperty("$name.fabric_api")}")
         add("implementation", "net.fabricmc:fabric-language-kotlin:1.13.12+kotlin.2.4.0")
-        add("implementation", "org.notenoughupdates.moulconfig:${catalog.getProperty("$name.moul_config")}:4.7.2")
-        add("include", "org.notenoughupdates.moulconfig:${catalog.getProperty("$name.moul_config")}:4.7.2")
+        add("implementation", if (mc == "26.3") rootProject.extra["moulConfig263"]!! else "org.notenoughupdates.moulconfig:${catalog.getProperty("$name.moul_config")}:4.7.2")
+        add("include", if (mc == "26.3") project(":moulconfig263") else "org.notenoughupdates.moulconfig:${catalog.getProperty("$name.moul_config")}:4.7.2")
         add("testImplementation", platform("org.junit:junit-bom:5.11.4"))
         add("testImplementation", "org.junit.jupiter:junit-jupiter")
         add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
@@ -59,7 +61,7 @@ subprojects {
         }
         named("test") { java.setSrcDirs(listOf(rootProject.file("src/test/java"))) }
         named("gametest") {
-            java.setSrcDirs(listOf(rootProject.file("src/gametest/java")))
+            java.setSrcDirs(listOf(rootProject.file("src/gametest/java"), rootProject.file("src/$mc/gametest/java")))
             resources.setSrcDirs(listOf(rootProject.file("src/gametest/resources")))
         }
     }
@@ -71,6 +73,7 @@ subprojects {
         filesMatching("fabric.mod.json") { expand("version" to project.version, "minecraft_version" to mc) }
     }
     tasks.named<Jar>("jar") {
+        from(rootProject.file("THIRD_PARTY.md"))
         archiveBaseName.set("CritterSafariUtility")
         from(rootProject.file("LICENSE")) { rename { "LICENSE_CritterSafariUtility" } }
     }

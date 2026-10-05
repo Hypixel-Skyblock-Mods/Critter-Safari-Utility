@@ -1,6 +1,6 @@
 # CritterSafariUtility agent guidance
 
-Client-only Java/Fabric mod for Minecraft 26.1.2 and 26.2, built with Java 25 and
+Client-only Java/Fabric mod for Minecraft 26.1.2, 26.2 and 26.3, built with Java 25 and
 Fabric Loom. Keep changes scoped and preserve the user's existing work.
 
 - `gradle/targets.properties` defines all supported targets and dependencies.

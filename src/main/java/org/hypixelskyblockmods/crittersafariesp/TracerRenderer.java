@@ -45,7 +45,7 @@ public final class TracerRenderer {
         if (settings.hud && settings.enabled && (count > 0 || !drops.isEmpty()))
             StatusHud.draw(graphics, settings, StatusHud.text(count,drops.size(), settings));
         if (!settings.enabled) { smoothed.clear(); return; }
-        OverlayQuad.begin(graphics);
+        OverlayBatch.begin(graphics);
         var labels=new ArrayList<Label>();
         long now = System.nanoTime();
         double elapsed = lastFrame == 0 ? 16 : Math.min(100, (now - lastFrame) / 1_000_000.0);
@@ -141,7 +141,7 @@ public final class TracerRenderer {
             }
         }
         smoothed.keySet().retainAll(activeIds);
-        OverlayQuad.finish();
+        OverlayBatch.finish();
         lastLabelNames=labels.stream().map(Label::text).toList();
         for(var label:labels) {
             graphics.fill(label.x()-3,label.y()-2,label.x()+mc.font.width(label.text())+3,label.y()+10,0xAA101814);
@@ -175,7 +175,7 @@ public final class TracerRenderer {
                 if (p == null) { valid = false; break; }
                 quad[v * 2] = p[0]; quad[v * 2 + 1] = p[1];
             }
-            if (valid) OverlayQuad.submit(graphics, quad, color);
+            if (valid) OverlayBatch.submit(graphics, quad, color);
         }
     }
     private static void outline(GuiGraphicsExtractor graphics, float[][] points, Settings settings, int color, float pixel) {
@@ -241,7 +241,7 @@ public final class TracerRenderer {
     }
     private static void strip(GuiGraphicsExtractor graphics, float ax, float ay, float bx, float by,
                               float nx, float ny, float from, float to, int fromColor, int toColor) {
-        OverlayQuad.submit(graphics, new float[]{
+        OverlayBatch.submit(graphics, new float[]{
             ax + nx * from, ay + ny * from, ax + nx * to, ay + ny * to,
             bx + nx * to, by + ny * to, bx + nx * from, by + ny * from
         }, new int[]{fromColor, toColor, toColor, fromColor});

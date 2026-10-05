@@ -10,3 +10,4 @@ pluginManagement {
 rootProject.name = "CritterSafariUtility"
 val catalog = Properties().apply { file("gradle/targets.properties").inputStream().use(::load) }
 catalog.getProperty("targets").split(',').map(String::trim).forEach { include("versions:$it") }
+include("moulconfig263")
