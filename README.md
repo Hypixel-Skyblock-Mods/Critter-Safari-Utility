@@ -2,8 +2,7 @@
 
 Client-only Fabric mod for Minecraft **26.1.2** and **26.2**. Draws thin red/green
 tracers with a soft halo and lightly filled 3D bounding boxes.
-Uses **MoulConfig**, the same settings library as SkyHanni and
-the neighboring SkyHUD/ChatTweaks mods. Default radius: **100 blocks**, measured
+Uses **MoulConfig** for settings. Default radius: **100 blocks**, measured
 as a sphere around the player.
 
 Use `/csu` to open CSU settings. The previous `/critteresp` command remains an
@@ -63,8 +62,8 @@ player's entry does not. Panel positions/sizes and the mode preference persist.
 Species filters require an identified critter name or recognized species model;
 an anonymous vanilla-type fallback cannot reliably be assigned to a species.
 
-**Floor Drop Boxes** also marks the spots shown by Skyblocker's orange floor
-highlight: green happy-villager particles must confirm exactly three string
+**Floor Drop Boxes** marks drop locations: green happy-villager particles must
+confirm exactly three string
 item displays in one block. These get a lightly filled amber (`#FFBF40`) block box and a separate
 `Drops` count, without extra tracers. Boxes disappear when the displays are
 collected or unloaded. The same radius and Safari gate apply.
@@ -253,9 +252,8 @@ versions/mc26_2/build/libs/CritterSafariUtility-1.0.8+mc26.2.jar
 
 Source JARs are also generated. Shared behavior lives under `src/main/java`;
 only camera/screen API differences live under `src/26.1.2/java` and
-`src/26.2/java`. This follows the target catalog and compatibility structure in
-the neighboring ChatTweaks/SkyHUD projects. MoulConfig uses the target-specific
-`modern-26.1` / `modern-26.2` artifacts. PlayerAPI is not required.
+`src/26.2/java`. MoulConfig uses the target-specific
+`modern-26.1` / `modern-26.2` artifacts.
 
 Unit tests cover area/domain matching, name boundaries, spherical range,
 projection, frame-rate-independent smoothing, HUD placement after a resize,
